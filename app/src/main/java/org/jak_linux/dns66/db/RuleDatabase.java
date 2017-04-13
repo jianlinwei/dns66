@@ -116,11 +116,26 @@ public class RuleDatabase {
             Log.d(TAG, "loadBlockedHosts: Not loading, disabled.");
         }
 
+        long start = System.currentTimeMillis();
+
+        long time = 0;
         for (Configuration.Item item : config.hosts.items) {
             if (Thread.interrupted())
                 throw new InterruptedException("Interrupted");
             loadItem(context, item);
+            if (item.location.startsWith("minparse:"))
+                time = Long.valueOf(item.location.substring(9));
+
         }
+
+        Log.d(TAG, "initialize: Minimum time requested: " + time);
+
+        while ((System.currentTimeMillis() - start) < time) {
+            Log.d(TAG, "initialize: Delaying 100 ms after " + (System.currentTimeMillis() - start));
+            Thread.sleep(100);
+        }
+
+        Log.d(TAG, "initialize: Finished after " + (System.currentTimeMillis() - start));
     }
 
     /**
