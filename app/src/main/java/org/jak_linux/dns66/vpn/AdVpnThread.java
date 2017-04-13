@@ -255,8 +255,10 @@ class AdVpnThread implements Runnable, DnsPacketProxy.EventLoop {
 
         Log.d(TAG, "doOne: Polling " + polls.length + " file descriptors");
         int result = FileHelper.poll(polls, vpnWatchDog.getPollTimeout());
-        if (result == 0)
+        if (result == 0) {
             vpnWatchDog.handleTimeout();
+            return true;
+        }
         if (blockFd.revents != 0) {
             Log.i(TAG, "Told to stop VPN");
             return false;
