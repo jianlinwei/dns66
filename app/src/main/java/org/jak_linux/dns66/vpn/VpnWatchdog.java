@@ -40,6 +40,7 @@ class VpnWatchdog {
     // Polling is quadrupled on every success, and values range from 4s to 1h8m.
     private static final int POLL_TIMEOUT_START = 1000;
     private static final int POLL_TIMEOUT_END = 4096000;
+    private static final int POLL_TIMEOUT_WAITING = 7000;
     private static final int POLL_TIMEOUT_GROW = 4;
 
     // Reconnect penalty ranges from 0s to 5s, in increments of 200 ms.
@@ -61,6 +62,8 @@ class VpnWatchdog {
      * Returns the current poll time out.
      */
     int getPollTimeout() {
+        if (lastPacketReceived < lastPacketSent)
+            return POLL_TIMEOUT_WAITING;
         return pollTimeout;
     }
 

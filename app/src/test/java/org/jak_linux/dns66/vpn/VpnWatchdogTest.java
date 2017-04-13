@@ -37,6 +37,13 @@ public class VpnWatchdogTest {
         watchdog.setTarget(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}));
     }
 
+    @Test
+    public void testGetTimeout() throws Exception {
+        assertEquals(1000, watchdog.getPollTimeout());
+        watchdog.lastPacketReceived = 1;
+        watchdog.lastPacketSent = 2;
+        assertEquals(7000, watchdog.getPollTimeout());
+    }
 
     @Test
     public void testInitialize() throws Exception {
