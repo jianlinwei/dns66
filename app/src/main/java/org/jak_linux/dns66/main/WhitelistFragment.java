@@ -15,7 +15,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -52,9 +55,20 @@ public class WhitelistFragment extends Fragment {
                              Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        View rootView = inflater.inflate(R.layout.activity_whitelist, container, false);
-
+        final View rootView = inflater.inflate(R.layout.activity_whitelist, container, false);
         appList = (ListView) rootView.findViewById(R.id.list);
+
+
+        rootView.findViewById(R.id.extra_bar_expand).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View swtch = rootView.findViewById(R.id.switch_show_system_apps);
+                if (swtch.getVisibility() == View.GONE)
+                    swtch.setVisibility(View.VISIBLE);
+                else
+                    swtch.setVisibility(View.GONE);
+            }
+        });
 
         swipeRefresh = (SwipeRefreshLayout) rootView.findViewById(R.id.swiperefresh);
         swipeRefresh.setOnRefreshListener(

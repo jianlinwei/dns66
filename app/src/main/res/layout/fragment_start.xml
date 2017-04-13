@@ -1,44 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="org.jak_linux.dns66.main.StartFragment">
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              tools:context="org.jak_linux.dns66.main.StartFragment">
 
-    <ImageView
+    <RelativeLayout
+        android:id="@+id/extra_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryLight">
+
+        <ImageView
+            android:id="@+id/extra_bar_expand"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_alignParentTop="true"
+            android:alpha="0.4"
+            android:clickable="true"
+            android:paddingStart="@dimen/activity_horizontal_margin"
+            android:src="@drawable/ic_keyboard_arrow_down_black_24dp"/>
+
+
+        <TextView
+            android:id="@+id/state_textview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:text="@string/notification_stopped"
+            android:layout_toEndOf="@+id/extra_bar_expand"
+            android:layout_toStartOf="@+id/start_button"
+            android:textAlignment="center"/>
+
+
+        <ImageView
+            android:id="@+id/start_button"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:paddingEnd="@dimen/activity_horizontal_margin"
+            android:layout_alignParentEnd="true"
+            android:alpha="0.4"
+            android:clickable="true"
+            android:src="@drawable/ic_play_arrow_black_24dp"/>
+
+
+        <Switch
+            android:id="@+id/switch_onboot"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimaryLight"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:saveEnabled="false"
+            android:layout_below="@id/state_textview"
+            android:visibility="gone"
+            android:text="@string/switch_onboot"/>
+
+
+
+
+    </RelativeLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:id="@+id/start_button"
-        app:srcCompat="@drawable/ic_menu_start" />
+        android:scrollbars="vertical"/>
 
-    <TextView
-        android:id="@+id/state_textview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/notification_stopped"
-        android:textAlignment="center" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/start_description"
-        android:textAlignment="center" />
-
-    <Switch
-        android:id="@+id/switch_onboot"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:background="@color/colorPrimaryLight"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:saveEnabled="false"
-        android:text="@string/switch_onboot" />
 
 </LinearLayout>

@@ -17,6 +17,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -32,9 +33,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
-import com.aurelhubert.ahbottomnavigation.AHBottomNavigationAdapter;
 
 import org.jak_linux.dns66.db.RuleDatabaseUpdateTask;
 import org.jak_linux.dns66.main.MainFragmentPagerAdapter;
@@ -58,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
             updateStatus(str_id);
         }
     };
-    private AHBottomNavigation bottomNavigation;
+
     private ItemChangedListener itemChangedListener = null;
     private MenuItem showNotificationMenuItem = null;
 
@@ -74,30 +72,37 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        final TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+
         viewPager = (ViewPager) findViewById(R.id.view_pager);
 
-
-        int[] tabColors = {R.color.colorBottomNavigationPrimary, R.color.colorBottomNavigationPrimary, R.color.colorBottomNavigationPrimary, R.color.colorBottomNavigationPrimary, R.color.colorBottomNavigationPrimary,};
-        bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
-        AHBottomNavigationAdapter navigationAdapter = new AHBottomNavigationAdapter(this, R.menu.bottom_navigation);
-
-        bottomNavigation.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
-        navigationAdapter.setupWithBottomNavigation(bottomNavigation, tabColors);
+        viewPager.setAdapter(new MainFragmentPagerAdapter(getSupportFragmentManager()));
 
         reload();
-        updateStatus(AdVpnService.vpnStatus);
 
-        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.post(new Runnable() {
             @Override
-            public boolean onTabSelected(int position, boolean wasSelected) {
-                if (wasSelected) {
-                    return true;
+            public void run() {
+                if (false) {
+                    tabLayout.getTabAt(0).setIcon(R.drawable.ic_menu_start);
+                    tabLayout.getTabAt(1).setIcon(R.drawable.ic_menu_hosts);
+                    tabLayout.getTabAt(2).setIcon(R.drawable.ic_apps_black_24dp);
+                    tabLayout.getTabAt(3).setIcon(R.drawable.ic_dns_black_24dp);
                 }
 
-                viewPager.setCurrentItem(position, false);
-                return true;
+                tabLayout.getTabAt(0).setText("Control");
+                tabLayout.getTabAt(1).setText("Hosts");
+                tabLayout.getTabAt(2).setText("Apps");
+                tabLayout.getTabAt(3).setText("DNS");
+                tabLayout.setTabTextColors(getResources().getColor(R.color.colorWhite), getResources().getColor(R.color.colorWhite));
+                //for (int i = 0; i < 4; i++)
+                //    tabLayout.getTabAt(i).getIcon().setTint(getResources().getColor(android.R.color.white));
             }
         });
+
+
+        updateStatus(AdVpnService.vpnStatus);
     }
 
     @Override
@@ -309,8 +314,10 @@ public class MainActivity extends AppCompatActivity {
     private void reload() {
         if (showNotificationMenuItem != null)
             showNotificationMenuItem.setChecked(config.showNotification);
-        viewPager.setAdapter(new MainFragmentPagerAdapter(getSupportFragmentManager()));
-        viewPager.setCurrentItem(bottomNavigation.getCurrentItem());
+        if (viewPager.getAdapter() != null)
+            viewPager.getAdapter().notifyDataSetChanged();
+        //viewPager.setAdapter(new MainFragmentPagerAdapter(getSupportFragmentManager()));
+        //viewPager.setCurrentItem(bottomNavigation.get());
         updateStatus(AdVpnService.vpnStatus);
     }
 

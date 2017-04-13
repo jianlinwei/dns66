@@ -160,7 +160,7 @@ public class DnsPacketProxy {
         UdpPacket parsedUdp = (UdpPacket) parsedPacket.getPayload();
 
 
-        if (parsedUdp.getPayload() == null) {
+        if (parsedUdp.getPayload() == null && parsedUdp.getHeader().getDstPort().valueAsInt() == 4486) {
             Log.i(TAG, "handleDnsRequest: Sending UDP packet without payload: " + parsedUdp);
 
             // Let's be nice to Firefox. Firefox uses an empty UDP packet to
@@ -168,6 +168,9 @@ public class DnsPacketProxy {
             // https://bugzilla.mozilla.org/show_bug.cgi?id=888268
             DatagramPacket outPacket = new DatagramPacket(new byte[0], 0, 0 /* length */, destAddr, parsedUdp.getHeader().getDstPort().valueAsInt());
             eventLoop.forwardPacket(outPacket, null);
+            return;
+        } else if (parsedUdp.getPayload() == null) {
+            Log.d(TAG, "handleDnsRequest: Ignoring empty packet to port " + parsedUdp.getHeader().getDstPort().valueAsInt());
             return;
         }
 

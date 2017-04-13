@@ -7,20 +7,16 @@
  */
 package org.jak_linux.dns66.main;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.net.VpnService;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.util.AtomicFile;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +34,6 @@ import org.jak_linux.dns66.R;
 import org.jak_linux.dns66.vpn.AdVpnService;
 import org.jak_linux.dns66.vpn.Command;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
@@ -52,17 +47,41 @@ public class StartFragment extends Fragment {
     public StartFragment() {
     }
 
+    public static void updateStatus(View rootView, int status) {
+        Context context = rootView.getContext();
+        TextView stateText = (TextView) rootView.findViewById(R.id.state_textview);
+        ImageView startButton = (ImageView) rootView.findViewById(R.id.start_button);
+
+        if (startButton == null || stateText == null)
+            return;
+
+        stateText.setText(rootView.getContext().getString(AdVpnService.vpnStatusToTextId(status)));
+        switch (status) {
+            case AdVpnService.VPN_STATUS_STOPPED:
+                startButton.setImageDrawable(context.getDrawable(R.drawable.ic_play_arrow_black_24dp));
+                break;
+            case AdVpnService.VPN_STATUS_RUNNING:
+            case AdVpnService.VPN_STATUS_RECONNECTING:
+            case AdVpnService.VPN_STATUS_STARTING:
+            case AdVpnService.VPN_STATUS_STOPPING:
+            case AdVpnService.VPN_STATUS_RECONNECTING_NETWORK_ERROR:
+                startButton.setImageAlpha(255);
+                startButton.setImageDrawable(context.getDrawable(R.drawable.ic_stop_black_24dp));
+                break;
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_start, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_start, container, false);
         Switch switchOnBoot = (Switch) rootView.findViewById(R.id.switch_onboot);
 
         ImageView view = (ImageView) rootView.findViewById(R.id.start_button);
 
-        view.setOnLongClickListener(new View.OnLongClickListener() {
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onLongClick(View v) {
+            public void onClick(View v) {
                 if (AdVpnService.vpnStatus != AdVpnService.VPN_STATUS_STOPPED) {
                     Log.i(TAG, "Attempting to disconnect");
 
@@ -72,7 +91,6 @@ public class StartFragment extends Fragment {
                 } else {
                     checkHostsFilesAndStartService();
                 }
-                return true;
             }
         });
 
@@ -87,37 +105,31 @@ public class StartFragment extends Fragment {
             }
         });
 
+        RecyclerView recyclerView = (RecyclerView) rootView.findViewById(R.id.list);
+        recyclerView.setHasFixedSize(true);
+
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(new MyAdapter());
+        Log.d(TAG, "onCreateView: Having " + recyclerView.getAdapter().getItemCount() + " items");
+
+        final ImageView expand = (ImageView) rootView.findViewById(R.id.extra_bar_expand);
+        expand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View swtch = rootView.findViewById(R.id.switch_onboot);
+                if (swtch.getVisibility() == View.GONE) {
+                    expand.setImageDrawable(getContext().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+                    swtch.setVisibility(View.VISIBLE);
+                } else {
+                    expand.setImageDrawable(getContext().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
+                    swtch.setVisibility(View.GONE);
+                }
+            }
+        });
+
+
         return rootView;
-    }
-
-    public static void updateStatus(View rootView, int status) {
-        Context context = rootView.getContext();
-        TextView stateText = (TextView) rootView.findViewById(R.id.state_textview);
-        ImageView startButton = (ImageView) rootView.findViewById(R.id.start_button);
-
-        if (startButton == null || stateText == null)
-            return;
-
-        stateText.setText(rootView.getContext().getString(AdVpnService.vpnStatusToTextId(status)));
-
-        startButton.getDrawable().setTintList(null);
-        switch(status) {
-            case AdVpnService.VPN_STATUS_RECONNECTING:
-            case AdVpnService.VPN_STATUS_STARTING:
-            case AdVpnService.VPN_STATUS_STOPPING:
-                startButton.setImageAlpha(128);
-                break;
-            case AdVpnService.VPN_STATUS_STOPPED:
-                startButton.setImageAlpha(64);
-                break;
-            case AdVpnService.VPN_STATUS_RUNNING:
-                startButton.setImageAlpha(255);
-                break;
-            case AdVpnService.VPN_STATUS_RECONNECTING_NETWORK_ERROR:
-                startButton.setImageAlpha(255);
-                startButton.getDrawable().setTint(ContextCompat.getColor(context, R.color.stateError));
-                break;
-        }
     }
 
     private void checkHostsFilesAndStartService() {
@@ -195,5 +207,38 @@ public class StartFragment extends Fragment {
                             new Intent(getContext(), MainActivity.class), 0));
             getContext().startService(intent);
         }
+    }
+
+    private static class MyAdapter extends RecyclerView.Adapter<MyAdapter.MyViewHolder> {
+        @Override
+        public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View layout = LayoutInflater.from(parent.getContext()).inflate(android.R.layout.simple_list_item_2, parent, false);
+
+            return new MyViewHolder(layout);
+
+        }
+
+        @Override
+        public void onBindViewHolder(MyViewHolder holder, int position) {
+            holder.text1.setText("Host: host" + position + ".example.com");
+            holder.text2.setText("App: app" + position);
+        }
+
+        @Override
+        public int getItemCount() {
+            return 12;
+        }
+
+        static class MyViewHolder extends RecyclerView.ViewHolder {
+            public TextView text1;
+            public TextView text2;
+
+            public MyViewHolder(View layout) {
+                super(layout);
+                text1 = (TextView) layout.findViewById(android.R.id.text1);
+                text2 = (TextView) layout.findViewById(android.R.id.text2);
+            }
+        }
+
     }
 }
