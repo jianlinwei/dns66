@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Switch;
 
 import org.jak_linux.dns66.Configuration;
@@ -91,6 +92,21 @@ public class HostsFragment extends Fragment {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 MainActivity.config.hosts.enabled = isChecked;
                 FileHelper.writeSettings(getContext(), MainActivity.config);
+            }
+        });
+
+        final ImageView expand = (ImageView) rootView.findViewById(R.id.extra_bar_expand);
+        expand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View swtch = rootView.findViewById(R.id.host_description);
+                if (swtch.getVisibility() == View.GONE) {
+                    expand.setImageDrawable(getContext().getDrawable(R.drawable.ic_keyboard_arrow_up_black_24dp));
+                    swtch.setVisibility(View.VISIBLE);
+                } else {
+                    expand.setImageDrawable(getContext().getDrawable(R.drawable.ic_keyboard_arrow_down_black_24dp));
+                    swtch.setVisibility(View.GONE);
+                }
             }
         });
 
