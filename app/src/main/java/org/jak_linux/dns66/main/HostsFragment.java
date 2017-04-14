@@ -9,6 +9,7 @@ package org.jak_linux.dns66.main;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -33,7 +34,7 @@ public class HostsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_hosts, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_hosts, container, false);
 
         RecyclerView mRecyclerView = (RecyclerView) rootView.findViewById(R.id.host_entries);
 
@@ -45,6 +46,23 @@ public class HostsFragment extends Fragment {
 
         final ItemRecyclerViewAdapter mAdapter = new ItemRecyclerViewAdapter(MainActivity.config.hosts.items, 3);
         mRecyclerView.setAdapter(mAdapter);
+
+        mAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeRemoved(int positionStart, int itemCount) {
+                Snackbar.make(rootView, "Deleted", 2000).setAction("Undo", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        MainActivity.config = FileHelper.loadPreviousSettings(getActivity());
+                        FileHelper.writeSettings(getActivity(), MainActivity.config);
+                        ((MainActivity)getActivity()).reload();
+                    }
+                }).show();
+
+
+                        super.onItemRangeRemoved(positionStart, itemCount);
+            }
+        });
 
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(new ItemTouchHelperCallback(mAdapter));
         itemTouchHelper.attachToRecyclerView(mRecyclerView);

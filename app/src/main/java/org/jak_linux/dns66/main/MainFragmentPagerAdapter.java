@@ -39,6 +39,21 @@ public class MainFragmentPagerAdapter extends FragmentPagerAdapter {
     }
 
     @Override
+    public CharSequence getPageTitle(int position) {
+        switch (position) {
+            case 0:
+                return "Control";
+            case 1:
+                return "Hosts";
+            case 2:
+                return "Apps";
+            case 3:
+                return "DNS";
+        }
+        return null;
+    }
+
+    @Override
     public int getCount() {
         return 4;
     }

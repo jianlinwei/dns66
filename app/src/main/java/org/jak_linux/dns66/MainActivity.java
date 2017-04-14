@@ -81,26 +81,6 @@ public class MainActivity extends AppCompatActivity {
         reload();
 
         tabLayout.setupWithViewPager(viewPager);
-        tabLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                if (false) {
-                    tabLayout.getTabAt(0).setIcon(R.drawable.ic_menu_start);
-                    tabLayout.getTabAt(1).setIcon(R.drawable.ic_menu_hosts);
-                    tabLayout.getTabAt(2).setIcon(R.drawable.ic_apps_black_24dp);
-                    tabLayout.getTabAt(3).setIcon(R.drawable.ic_dns_black_24dp);
-                }
-
-                tabLayout.getTabAt(0).setText("Control");
-                tabLayout.getTabAt(1).setText("Hosts");
-                tabLayout.getTabAt(2).setText("Apps");
-                tabLayout.getTabAt(3).setText("DNS");
-                tabLayout.setTabTextColors(getResources().getColor(R.color.colorWhite), getResources().getColor(R.color.colorWhite));
-                //for (int i = 0; i < 4; i++)
-                //    tabLayout.getTabAt(i).getIcon().setTint(getResources().getColor(android.R.color.white));
-            }
-        });
-
 
         updateStatus(AdVpnService.vpnStatus);
     }
@@ -125,11 +105,6 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
-            case R.id.action_restore:
-                config = FileHelper.loadPreviousSettings(this);
-                FileHelper.writeSettings(this, MainActivity.config);
-                reload();
-                break;
             case R.id.action_refresh:
                 refresh();
                 break;
@@ -311,13 +286,12 @@ public class MainActivity extends AppCompatActivity {
                 .registerReceiver(vpnServiceBroadcastReceiver, new IntentFilter(AdVpnService.VPN_UPDATE_STATUS_INTENT));
     }
 
-    private void reload() {
+    public void reload() {
         if (showNotificationMenuItem != null)
             showNotificationMenuItem.setChecked(config.showNotification);
-        if (viewPager.getAdapter() != null)
-            viewPager.getAdapter().notifyDataSetChanged();
-        //viewPager.setAdapter(new MainFragmentPagerAdapter(getSupportFragmentManager()));
-        //viewPager.setCurrentItem(bottomNavigation.get());
+        int currentItem = viewPager.getCurrentItem();
+        viewPager.setAdapter(new MainFragmentPagerAdapter(getSupportFragmentManager()));
+        viewPager.setCurrentItem(currentItem);
         updateStatus(AdVpnService.vpnStatus);
     }
 
